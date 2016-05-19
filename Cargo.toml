@@ -1,0 +1,8 @@
+[package]
+
+name = "geofrac"
+version = "0.1.0"
+authors = ["F"]
+
+[dependencies]
+colored = "1.2"

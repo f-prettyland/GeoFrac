@@ -1,0 +1,8 @@
+Todo:
+	Pixel output
+
+	Experiments:
+		replace "-1.0*size"
+			see impact on speed
+		"Bad version"
+			rounding to figures found before to save time
