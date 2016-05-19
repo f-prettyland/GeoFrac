@@ -1,1 +1,4 @@
 # GeoFrac
+
+
+![](/res/mandelbrot.png)
