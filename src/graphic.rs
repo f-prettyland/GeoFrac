@@ -13,20 +13,23 @@ pub fn gen_loop(size : Float, stp : Float, mx : Int, dr : Float){
 	let img_dim : Img = ((size*2.0)/stp) as Img;
     let mut buffer = image::ImageBuffer::new(img_dim, img_dim);
 
+    let scl : Float = 255.0/(mx as Float);
+
 	let mut x : Float;
-	let mut x_cnt : Img = 0;
+	let mut x_cnt : Img;
 	let mut y : Float = size;
-	let mut y_cnt : Img = img_dim;
+	let mut y_cnt : Img = img_dim-1;
 	loop{
 		x = -1.0*size;
+		x_cnt = 0;
 		loop{
 			let xy_steps : Int = fracmaths::get_passes_mandelbrot((x, y), mx, dr);
 
-			buffer.put_pixel(x_cnt, y_cnt, image::Luma([xy_steps as u8]));
+			buffer.put_pixel(x_cnt, y_cnt, image::Luma([(scl*(xy_steps as Float)) as u8]));
 
 			x += stp;
 			x_cnt += 1;
-			if x_cnt > img_dim {
+			if x_cnt > img_dim-1 {
 				break;
 			}
 		}
