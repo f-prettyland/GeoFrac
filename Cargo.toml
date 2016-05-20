@@ -6,3 +6,4 @@ authors = ["F"]
 
 [dependencies]
 colored = "1.2"
+image = "*"

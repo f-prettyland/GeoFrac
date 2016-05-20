@@ -1,6 +1,11 @@
 Todo:
 	Pixel output
 
+	Animated zoom?
+		Reuse prev values somehow?
+
+	Generic fractal finder with custom fnc input 
+	
 	Experiments:
 		replace "-1.0*size"
 			see impact on speed
