@@ -16,12 +16,11 @@ fn main() {
 
 	if args.len() >= 5 {
 		graphic::gen_loop(parse_string(&args[1]), parse_string(&args[2]),
-			parse_string(&args[3]), parse_string(&args[4]))
+			parse_string(&args[3]), parse_string(&args[4]), args.contains(&"-b".to_string()) )
 	}
 
 	if args.contains(&"-t".to_string()) {
-		terminal::gen_term_loop();
-		return;
+		terminal::gen_term_loop()
 	}
 }
 
@@ -32,8 +31,10 @@ fn print_help(){
 	println!("	3. Max iterations");
 	println!("	4. Divergence radius");
 	println!("");
-	println!("Unless ");
-	println!("	-t flag		Output terminal");
+	println!("Flags ");
+	println!("	-t		Output terminal [ignores all other arguments]");
+	println!("	-h		Display this help message");
+	println!("	-b		Black and white");
 }
 
 /// #Generic read in
