@@ -16,32 +16,21 @@ pub fn gen_loop(size : Float, stp : Float, mx : Int, dr : Float){
     let scl : Float = 255.0/(mx as Float);
 
 	let mut x : Float;
-	let mut x_cnt : Img;
 	let mut y : Float = size;
-	let mut y_cnt : Img = img_dim-1;
-	loop{
+	
+	for y_cnt in (0..(img_dim-1)).rev() {
 		x = -1.0*size;
-		x_cnt = 0;
-		loop{
+		for x_cnt in 0..(img_dim-1) {
 			let xy_steps : Int = fracmaths::get_passes_mandelbrot((x, y), mx, dr);
 
 			buffer.put_pixel(x_cnt, y_cnt, image::Luma([(scl*(xy_steps as Float)) as u8]));
 
 			x += stp;
-			x_cnt += 1;
-			if x_cnt > img_dim-1 {
-				break;
-			}
-		}
-
-		if y_cnt == 0{
-			break;
 		}
 		y -= stp;
-		y_cnt -= 1;
 	}
 
 
-	let ref mut path = File::create(&Path::new("fractal.png")).unwrap();
+	let ref mut path = File::create(&Path::new("./res/fractal.png")).unwrap();
 	let _    = image::ImageLuma8(buffer).save(path, image::PNG);
 }
