@@ -1,5 +1,5 @@
 # GeoFrac
 
 
-![](/res/mandelbrot.png)
+![](/res/TERMFractal.png)
 ![](/res/BWFractal.png)

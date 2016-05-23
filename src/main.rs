@@ -32,23 +32,20 @@ fn print_help(){
 	println!("	4. Divergence radius");
 	println!("");
 	println!("Flags ");
-	println!("	-t		Output terminal [ignores all other arguments]");
-	println!("	-h		Display this help message");
-	println!("	-b		Black and white");
+	println!("	-t	Output terminal [ignores all other arguments]");
+	println!("	-h	Display this help message");
+	println!("	-b	Black and white");
 }
 
 /// #Generic read in
 ///	##Args
 ///	1. String to parse
 ///	##Output
-///	1. Generic type (which implements FromStr trait)
+///	1. Generic type (which implements `FromStr` trait)
 fn parse_string<T: std::str::FromStr>(to_parse: &String) -> T {
-	return match to_parse.trim().parse() {
-				Ok(num) => num,
-				Err(_) =>{
-					println!("Incorrect arguments format");
-					print_help();
-            		process::exit(1);
-				} 
-			};
+	to_parse.trim().parse().unwrap_or_else(|_|{
+		println!("Incorrect arguments format");
+		print_help();
+		process::exit(1);
+		})
 }
