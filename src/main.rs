@@ -1,62 +1,78 @@
+extern crate getopts;
+
 mod terminal;
 mod types;
 mod fracmaths;
 mod graphic;
+
 use std::env;
-use std::process;
+
+
 
 fn main() {
-	//Bound size, Step size, Max passes, Divergence radius
-	let args: Vec<_> = env::args().collect();
-	
-	if args.contains(&"-h".to_string()) || args.len() == 1 {
-		print_help();
-		return;
-	}
+    //Bound size, Step size, Max passes, Divergence radius
+    let args: Vec<_> = env::args().collect();
+    let program = args[0].clone();
+    
+    let mut opts = getopts::Options::new();
 
-	if args.len() >= 5 {
+    opts.optflag("h", "help", "Display this help message");
+    opts.optflag("b", "no-color", "Black and white output");
+    opts.optflag("t", "term", "Terminal output (ignores all other args)");
 
-            let config = graphic::Config::default()
-                .size(parse_string(&args[1]))
-                .step(parse_string(&args[2]))
-                .max_iters(parse_string(&args[3]))
-                .escape_radius(parse_string(&args[4]))
-                .with_color();
+    let matches = match opts.parse(&args[1..]) {
+        Ok(m) => m,
+        Err(f) => panic!(f.to_string()),
+    };
 
-            // if !args.contains(&"-t".to_string()) {
-            //     let config = config.with_color();
-            // }
+    if matches.opt_present("h") {
+        print_usage(&program, opts);
+        return;
+    }
 
-            config.gen_loop();
-	}
+    if matches.opt_present("t") {
+        terminal::gen_term_loop();
+        return;
+    }
 
-	if args.contains(&"-t".to_string()) {
-		terminal::gen_term_loop()
-	}
+    let settings = matches.free;
+
+    if settings.len() == 4 {
+        if let Ok(configs) = parse_settings(settings) {
+            configs.gen_loop();
+            return;
+        }
+    }
+    print_usage(&program, opts);
 }
 
-fn print_help(){
-	println!("First four arguments should be");
-	println!("	1. Bound size");
-	println!("	2. Step size");
-	println!("	3. Max iterations");
-	println!("	4. Divergence radius");
-	println!("");
-	println!("Flags ");
-	println!("	-t	Output terminal [ignores all other arguments]");
-	println!("	-h	Display this help message");
-	println!("	-b	Black and white");
+// Must be a nicer way of handling this
+fn parse_settings(settings: Vec<String>) -> Result<graphic::Config, SettingsError> {
+    if let Ok(size) = settings[0].parse() {
+        if let Ok(step) = settings[1].parse() {
+            if let Ok(iters) = settings[2].parse() {
+                if let Ok(radius) = settings[3].parse() {
+                    Ok(graphic::Config::default()          
+                       .size(size)
+                       .step(step)
+                       .max_iters(iters)
+                       .escape_radius(radius)
+                       .with_color())
+                } else { return Err(SettingsError::Radius) } 
+            } else { return Err(SettingsError::Iters) } 
+        } else { return Err(SettingsError::Step) } 
+    } else { return Err(SettingsError::Size) }
 }
 
-/// # Generic read in
-///	## Args
-///	1. String to parse
-///	## Output
-///	1. Generic type (which implements `FromStr` trait)
-fn parse_string<T: std::str::FromStr>(to_parse: &String) -> T {
-	to_parse.trim().parse().unwrap_or_else(|_|{
-		println!("Incorrect arguments format");
-		print_help();
-		process::exit(1);
-		})
+enum SettingsError {
+    Size,
+    Step,
+    Iters,
+    Radius,
 }
+
+fn print_usage(program: &str, opts: getopts::Options) {
+    let brief = format!("Usage: {} SIZE STEP MAX_ITERATIONS ESCAPE_RADIUS [options]", program);
+    print!("{}", opts.usage(&brief));
+}
+
