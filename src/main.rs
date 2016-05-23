@@ -15,8 +15,19 @@ fn main() {
 	}
 
 	if args.len() >= 5 {
-		graphic::gen_loop(parse_string(&args[1]), parse_string(&args[2]),
-			parse_string(&args[3]), parse_string(&args[4]), args.contains(&"-b".to_string()) )
+
+            let config = graphic::Config::default()
+                .size(parse_string(&args[1]))
+                .step(parse_string(&args[2]))
+                .max_iters(parse_string(&args[3]))
+                .escape_radius(parse_string(&args[4]))
+                .with_color();
+
+            // if !args.contains(&"-t".to_string()) {
+            //     let config = config.with_color();
+            // }
+
+            config.gen_loop();
 	}
 
 	if args.contains(&"-t".to_string()) {
@@ -37,10 +48,10 @@ fn print_help(){
 	println!("	-b	Black and white");
 }
 
-/// #Generic read in
-///	##Args
+/// # Generic read in
+///	## Args
 ///	1. String to parse
-///	##Output
+///	## Output
 ///	1. Generic type (which implements `FromStr` trait)
 fn parse_string<T: std::str::FromStr>(to_parse: &String) -> T {
 	to_parse.trim().parse().unwrap_or_else(|_|{
