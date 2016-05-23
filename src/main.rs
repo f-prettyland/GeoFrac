@@ -5,9 +5,9 @@ mod types;
 mod fracmaths;
 mod graphic;
 
+use types::*;
+
 use std::env;
-
-
 
 fn main() {
     //Bound size, Step size, Max passes, Divergence radius
@@ -46,29 +46,49 @@ fn main() {
     print_usage(&program, opts);
 }
 
-// Must be a nicer way of handling this
-fn parse_settings(settings: Vec<String>) -> Result<graphic::Config, SettingsError> {
-    if let Ok(size) = settings[0].parse() {
-        if let Ok(step) = settings[1].parse() {
-            if let Ok(iters) = settings[2].parse() {
-                if let Ok(radius) = settings[3].parse() {
-                    Ok(graphic::Config::default()          
-                       .size(size)
-                       .step(step)
-                       .max_iters(iters)
-                       .escape_radius(radius)
-                       .with_color())
-                } else { return Err(SettingsError::Radius) } 
-            } else { return Err(SettingsError::Iters) } 
-        } else { return Err(SettingsError::Step) } 
-    } else { return Err(SettingsError::Size) }
+// Should be a nicer way of doing this
+// First attempt at a clean up
+macro_rules! parse_setting {
+    ($setting:ident, $setting_type:ident, $position:expr, $settings:ident) => (
+        let $setting: $setting_type = match $settings[$position].parse() {
+            Ok(value) => value,
+            Err(_) => return Err(SettingsError::from_position($position)),
+        }
+    );
 }
+
+fn parse_settings(settings: Vec<String>) -> Result<graphic::Config, SettingsError> {
+    parse_setting!(size, Float, 0, settings);
+    parse_setting!(step, Float, 1, settings);
+    parse_setting!(iters, Int, 2, settings);
+    parse_setting!(radius, Float, 3, settings);
+
+    Ok(graphic::Config::default()
+       .size(size)
+       .step(step)                            
+       .max_iters(iters)
+       .escape_radius(radius)
+       .with_color())
+  }
 
 enum SettingsError {
     Size,
     Step,
     Iters,
     Radius,
+    Unknown,
+}
+
+impl SettingsError {
+    fn from_position(position: usize) -> Self {
+        match position {
+            0 => SettingsError::Size,
+            1 => SettingsError::Step,
+            2 => SettingsError::Iters,
+            3 => SettingsError::Radius,
+            _ => SettingsError::Unknown,
+        } 
+    }
 }
 
 fn print_usage(program: &str, opts: getopts::Options) {
