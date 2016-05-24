@@ -45,7 +45,7 @@ impl Default for GifConfig {
 		GifConfig {
 			init_frame: Config::default(),
 			zoom: 2.0,
-			z_step: 0.1,
+			z_step: 1.0,
 			z_centre_x: -0.1011,
 			z_centre_y: 0.9563,
 		}
@@ -196,12 +196,15 @@ impl GifConfig {
 	}
 
 
-	pub fn gif_loop(&self){
+	pub fn gif_loop(&mut self){
 		let mut curr_z : Float = 1.0;
-
+		let mut count = 0;
 		loop{
-			let frame = self.init_frame.clone();
-
+			count+=1;
+			self.init_frame.filename= format!("./gif/{}.png",count);
+			self.init_frame.size 	= (1.0/curr_z)*self.init_frame.size;
+			self.init_frame.step 	= (1.0/curr_z)*self.init_frame.step;
+			self.init_frame.gen_loop();
 			curr_z += self.z_step;
 			if curr_z > self.zoom {
 				break;

@@ -16,7 +16,7 @@ fn main() {
 	
 	let mut opts = getopts::Options::new();
 
-	opts.optflag("f", "filename", "Set the resultant filename");
+	opts.optopt("f", "filename", "Set the resultant filename", "FILENAME");
 	opts.optflag("g", "gif", "Generate a gif instead with three more parameters: ZOOM, ZOOM_STEP, Z_CENTRE_X, Z_CENTRE_Y");
 	opts.optflag("h", "help", "Display this help message");
 	opts.optflag("b", "no-color", "Black and white output");
@@ -40,21 +40,25 @@ fn main() {
 	let col = !matches.opt_present("b");
 
 	let filename = matches.opt_str("f");
+	let gif_flag = matches.opt_present("g");
 
 	let settings = matches.free;
+	let settings_len = settings.len();
 
-	if settings.len() >= 4 {
+	if settings_len == 8 && gif_flag{ 
 		if let Ok(configs) = parse_settings(&settings, col, filename) {
-			if settings.len() == 4 {
-				configs.gen_loop();
-			}else{
-				if let Ok(gif_configs) = parse_gif_settings(settings, configs) {
-					gif_configs.gif_loop();
-				}
+			if let Ok(mut gif_configs) = parse_gif_settings(&settings, configs) {
+				gif_configs.gif_loop();
+				return;
 			}
+		}
+	}else if settings_len == 4 {
+		if let Ok(configs) = parse_settings(&settings, col, filename) {
+			configs.gen_loop();
 			return;
 		}
 	}
+	
 	print_usage(&program, opts);
 }
 
@@ -86,7 +90,7 @@ fn parse_settings(settings: &Vec<String>, col : bool, filename : Option<String>)
  }
 
 
-fn parse_gif_settings(settings: Vec<String>, con : graphic::Config) -> Result<graphic::GifConfig, SettingsError> {
+fn parse_gif_settings(settings: &Vec<String>, con : graphic::Config) -> Result<graphic::GifConfig, SettingsError> {
 	parse_setting!(zoom, Float, 4, settings);
 	parse_setting!(z_step, Float, 5, settings);
 	parse_setting!(z_x, Float, 6, settings);
@@ -96,7 +100,7 @@ fn parse_gif_settings(settings: Vec<String>, con : graphic::Config) -> Result<gr
 		.init_frame(con)
 		.zoom(zoom)
 		.z_step(z_step)
-		.z_centre_x(z_x)
+		.z_centre_x((-1.0)*z_x)
 		.z_centre_y(z_y))
 }
 

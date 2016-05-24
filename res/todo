@@ -1,5 +1,11 @@
 Todo:
-	Parallelisatism
+	Soon
+		xSize
+		ySize
+
+
+
+	Parallelism
 		crossbeam/Metal IO
 
 		BEHAVIOURIAL ALLOCATION
