@@ -3,6 +3,7 @@ name = "geofrac"
 version = "0.1.0"
 dependencies = [
  "colored 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "getopts 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "image 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -67,6 +68,11 @@ dependencies = [
 [[package]]
 name = "gcc"
 version = "0.3.28"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "getopts"
+version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
