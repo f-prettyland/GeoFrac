@@ -35,10 +35,12 @@ fn main() {
 		return;
 	}
 
+	let col = !matches.opt_present("b");
+
 	let settings = matches.free;
 
 	if settings.len() == 4 {
-		if let Ok(configs) = parse_settings(settings) {
+		if let Ok(configs) = parse_settings(settings, col) {
 			configs.gen_loop();
 			return;
 		}
@@ -57,7 +59,7 @@ macro_rules! parse_setting {
 	);
 }
 
-fn parse_settings(settings: Vec<String>) -> Result<graphic::Config, SettingsError> {
+fn parse_settings(settings: Vec<String>, col : bool) -> Result<graphic::Config, SettingsError> {
 	parse_setting!(size, Float, 0, settings);
 	parse_setting!(step, Float, 1, settings);
 	parse_setting!(iters, Int, 2, settings);
@@ -68,7 +70,7 @@ fn parse_settings(settings: Vec<String>) -> Result<graphic::Config, SettingsErro
 	   .step(step)                            
 	   .max_iters(iters)
 	   .escape_radius(radius)
-	   .with_color())
+	   .with_color(col))
   }
 
 enum SettingsError {

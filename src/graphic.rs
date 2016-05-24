@@ -4,12 +4,12 @@ use std::fs::File;
 use std::path::Path;
 use std::thread;
 use std::sync::mpsc;
+use std::f32;
 
 use fracmaths;
 use types::Int as Int;
 use types::Float as Float;
 use types::Img as Img;
-use std::f32;
 
 #[derive(Clone)]
 pub struct Config {
@@ -53,56 +53,71 @@ impl Config {
 		self
 	}
 
-	pub fn with_color(mut self) -> Self {
-		self.with_color = true;
+	pub fn with_color(mut self, col: bool) -> Self {
+		self.with_color = col;
 		self
 	}
 
 
 	pub fn gen_loop(&self) {
-	let img_dim : Img = ((self.size * 2.0) / self.step) as Img;
-	let mut buffer = image::ImageBuffer::new(img_dim, img_dim);
+		let img_dim : Img = ((self.size * 2.0) / self.step) as Img;
+		let mut buffer = image::ImageBuffer::new(img_dim, img_dim);
 
-	// 
-	let mut x : Float;
-	let mut y : Float = self.size;
+		// 
+		let mut x : Float;
+		let mut y : Float = self.size;
 
-	let (tx, rx) = mpsc::channel();
-	let scl : Float = 255.0/(mx as Float);
-	
-	for y_cnt in (0..(img_dim-1)).rev() {
-		x = -1.0 * self.size;
-		for x_cnt in 0..(img_dim-1) {
-		let tx = tx.clone();
+		let (tx, rx) = mpsc::channel();
+		let scl : Float = 255.0/(self.max_iters as Float);
 
-				let conf = self.clone();
-		thread::spawn(move || {
-			let xy_steps : Int = fracmaths::get_passes_mandelbrot((x, y),
-																		  conf.max_iters,
-																		  conf.escape_radius);
-
-			let mut rgb = (0,0,0);
-			if xy_steps != conf.max_iters {
-			rgb = (rgb_val(xy_steps, 0),rgb_val(xy_steps, 1), rgb_val(xy_steps, 2));
+		let mx = self.max_iters;
+		let er = self.escape_radius;
+		
+		for y_cnt in (0..(img_dim-1)).rev() {
+			x = -1.0 * self.size;
+			for x_cnt in 0..(img_dim-1) {
+				let tx = tx.clone();
+				if !self.with_color {
+					thread::spawn(move || {
+						let xy_steps : Int = fracmaths::get_passes_mandelbrot((x, y), mx, er);
+						tx.send((x_cnt,y_cnt,((scl*(xy_steps as Float)) as u8),None,None)).unwrap();
+					});
+				} else {
+					thread::spawn(move || {
+						let xy_steps : Int = fracmaths::get_passes_mandelbrot((x, y), mx, er);
+						let mut rgb = (0,0,0);
+						if xy_steps != mx {
+							rgb = (rgb_val(xy_steps, 0),rgb_val(xy_steps, 1), rgb_val(xy_steps, 2));
+						}
+						tx.send((x_cnt,y_cnt,rgb.0,Some(rgb.1),Some(rgb.2))).unwrap();
+					});
+				}
+				x += self.step;
 			}
-			tx.send((x_cnt,y_cnt,rgb.0,rgb.1,rgb.2)).unwrap();
-		});
-		x += self.step;
+			y -= self.step;
 		}
-		y -= self.step;
-	}
 
-	for _ in (0..(img_dim-1)).rev() {
-		for _ in 0..(img_dim-1) {
-		let (p,q,r,g,b) = rx.recv().unwrap();
-		buffer.put_pixel(p, q, image::Rgb([r,g,b]));
-		// buffer.put_pixel(p, q, image::Luma([(scl*(z as Float)) as u8]));
+		for _ in (0..(img_dim-1)).rev() {
+			for _ in 0..(img_dim-1) {
+				let (p,q,r,maybeg,maybeb) = rx.recv().unwrap();
+				match maybeg {
+					Some(g) if maybeb.is_some() =>
+							buffer.put_pixel(p, q, image::Rgb([r,g,maybeb.unwrap()])),
+					_	=> {
+								buffer.put_pixel(p, q, image::Rgb([r,r,r]));
+							}
+				}
+			}
 		}
-	}
 
-	let file = &mut File::create(&Path::new(&format!("./res/fractal-St{}-Mx{}.png", self.step, self.max_iters))).unwrap();
-	// let _ = image::ImageLuma8(buffer).save(path, image::PNG);
-	let _ = image::ImageRgb8(buffer).save(file, image::PNG);
+		let b = match self.with_color{
+				true => "",
+				false=> "-bw",
+		};
+
+		let filename = &format!("./res/fractal-St{}-Mx{}{}.png", self.step, self.max_iters,b);
+		let file = &mut File::create(&Path::new(filename)).unwrap();
+		let _ = image::ImageRgb8(buffer).save(file, image::PNG);
 	}
 }
 
