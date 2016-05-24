@@ -1,6 +1,6 @@
 use types::Int as Int;
 use types::Float as Float;
-use types::Cmplx as Cmplx;
+pub type Cmplx = (Float, Float);
 
 pub fn get_passes_mandelbrot(in_z: Cmplx, mx: Int, dr: Float) -> Int {
 	let mut cnt : Int = 0;

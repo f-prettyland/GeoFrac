@@ -16,6 +16,8 @@ fn main() {
 	
 	let mut opts = getopts::Options::new();
 
+	opts.optflag("f", "filename", "Set the resultant filename");
+	opts.optflag("g", "gif", "Generate a gif instead with three more parameters: ZOOM, ZOOM_STEP, Z_CENTRE_X, Z_CENTRE_Y");
 	opts.optflag("h", "help", "Display this help message");
 	opts.optflag("b", "no-color", "Black and white output");
 	opts.optflag("t", "term", "Terminal output (ignores all other args)");
@@ -37,11 +39,19 @@ fn main() {
 
 	let col = !matches.opt_present("b");
 
+	let filename = matches.opt_str("f");
+
 	let settings = matches.free;
 
-	if settings.len() == 4 {
-		if let Ok(configs) = parse_settings(settings, col) {
-			configs.gen_loop();
+	if settings.len() >= 4 {
+		if let Ok(configs) = parse_settings(&settings, col, filename) {
+			if settings.len() == 4 {
+				configs.gen_loop();
+			}else{
+				if let Ok(gif_configs) = parse_gif_settings(settings, configs) {
+					gif_configs.gif_loop();
+				}
+			}
 			return;
 		}
 	}
@@ -59,19 +69,36 @@ macro_rules! parse_setting {
 	);
 }
 
-fn parse_settings(settings: Vec<String>, col : bool) -> Result<graphic::Config, SettingsError> {
+fn parse_settings(settings: &Vec<String>, col : bool, filename : Option<String>) -> Result<graphic::Config, SettingsError> {
 	parse_setting!(size, Float, 0, settings);
 	parse_setting!(step, Float, 1, settings);
 	parse_setting!(iters, Int, 2, settings);
 	parse_setting!(radius, Float, 3, settings);
 
 	Ok(graphic::Config::default()
-	   .size(size)
-	   .step(step)                            
-	   .max_iters(iters)
-	   .escape_radius(radius)
-	   .with_color(col))
-  }
+		.size(size)
+		.step(step)
+		.max_iters(iters)
+		.escape_radius(radius)
+		.with_color(col)
+		.filename(filename)
+		)
+ }
+
+
+fn parse_gif_settings(settings: Vec<String>, con : graphic::Config) -> Result<graphic::GifConfig, SettingsError> {
+	parse_setting!(zoom, Float, 4, settings);
+	parse_setting!(z_step, Float, 5, settings);
+	parse_setting!(z_x, Float, 6, settings);
+	parse_setting!(z_y, Float, 7, settings);
+
+	Ok(graphic::GifConfig::default()
+		.init_frame(con)
+		.zoom(zoom)
+		.z_step(z_step)
+		.z_centre_x(z_x)
+		.z_centre_y(z_y))
+}
 
 enum SettingsError {
 	Size,

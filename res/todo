@@ -1,18 +1,21 @@
 Todo:
-	BEHAVIOURIAL ALLOCATION
-		Check threads using 
-			https://doc.rust-lang.org/book/benchmark-tests.html
-			https://llogiq.github.io/2015/06/16/bench.html
+	Parallelisatism
+		crossbeam/Metal IO
 
-		if neighbour is one pass, likely that is is one pass (therefore trivial)
-		Thread creation according to complexity
+		BEHAVIOURIAL ALLOCATION
+			Check threads using 
+				https://doc.rust-lang.org/book/benchmark-tests.html
+				https://llogiq.github.io/2015/06/16/bench.html
 
-	Pixel output
+			if neighbour is one pass, likely that is is one pass (therefore trivial)
+			Thread creation according to complexity
 
-	Animated zoom?
-		Reuse prev values somehow?
 
-	Generic fractal finder with custom fnc input 
+	Features
+		Animated zoom?
+			Reuse prev values somehow?
+
+		Generic fractal finder with custom fnc input 
 	
 	Experiments:
 		replace "-1.0*size"
