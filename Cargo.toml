@@ -7,4 +7,4 @@ authors = ["F"]
 [dependencies]
 colored = "1.2"
 image = "*"
-getopts = "0.2"
+clap = "2.5.1"

@@ -1,131 +1,115 @@
-extern crate getopts;
+#[macro_use]
+extern crate clap;
 
 mod terminal;
 mod types;
 mod fracmaths;
 mod graphic;
 
-use types::*;
-
-use std::env;
+use clap::{App, Arg, SubCommand};
 
 fn main() {
-	//Bound size, Step size, Max passes, Divergence radius
-	let args: Vec<_> = env::args().collect();
-	let program = args[0].clone();
-	
-	let mut opts = getopts::Options::new();
+    let options = [
+        Arg::with_name("size")
+            .help("TODO: size help")
+            .index(1)
+            .required(true),
+        Arg::with_name("step")
+            .help("TODO: step help")
+            .index(2)
+            .required(true),
+        Arg::with_name("iterations")
+            .help("TODO: iterations help")
+            .index(3)
+            .required(true),
+        Arg::with_name("radius")
+            .help("TODO: radius help")
+            .index(4)
+            .required(true),
+        Arg::with_name("greyscale")
+            .help("TODO: greyscale help")
+            .short("g")
+            .long("grey"),
+        Arg::with_name("output")
+            .help("TODO: output help")
+            .takes_value(true)
+            .short("o")
+            .long("output")
+    ];
 
-	opts.optopt("f", "filename", "Set the resultant filename", "FILENAME");
-	opts.optflag("g", "gif", "Generate a gif instead with three more parameters: ZOOM, ZOOM_STEP, Z_CENTRE_X, Z_CENTRE_Y");
-	opts.optflag("h", "help", "Display this help message");
-	opts.optflag("b", "no-color", "Black and white output");
-	opts.optflag("t", "term", "Terminal output (ignores all other args)");
+    let matches = App::new("GeoFrac")
+        .subcommands(vec![
+            SubCommand::with_name("still")
+                .about("Generates a still image")
+                .args(&options),
+            SubCommand::with_name("gif")
+                .about("Generates an animated gif")
+                .args(&options)
+                .args(&[
+                    Arg::with_name("zoom")
+                        .help("TODO: zoom help")
+                        .index(5)
+                        .required(true),
+                     Arg::with_name("zstep")
+                        .help("TODO: zstep help")
+                        .index(6)
+                        .required(true),
+                    Arg::with_name("x")
+                        .help("TODO: x help")
+                        .index(7)
+                        .required(true),
+                    Arg::with_name("y")
+                        .help("TODO: y help")
+                        .index(8)
+                        .required(true),
+                ]),
+            SubCommand::with_name("term")
+                .about("Outputs to terminal")
+                .help("TODO: terminal help")
+        ]).get_matches();
 
-	let matches = match opts.parse(&args[1..]) {
-		Ok(m) => m,
-		Err(f) => panic!(f.to_string()),
-	};
 
-	if matches.opt_present("h") {
-		print_usage(&program, opts);
-		return;
-	}
 
-	if matches.opt_present("t") {
-		terminal::gen_term_loop();
-		return;
-	}
-
-	let col = !matches.opt_present("b");
-
-	let filename = matches.opt_str("f");
-	let gif_flag = matches.opt_present("g");
-
-	let settings = matches.free;
-	let settings_len = settings.len();
-
-	if settings_len == 8 && gif_flag{ 
-		if let Ok(configs) = parse_settings(&settings, col, filename) {
-			if let Ok(mut gif_configs) = parse_gif_settings(&settings, configs) {
-				gif_configs.gif_loop();
-				return;
-			}
-		}
-	}else if settings_len == 4 {
-		if let Ok(configs) = parse_settings(&settings, col, filename) {
-			configs.gen_loop();
-			return;
-		}
-	}
-	
-	print_usage(&program, opts);
+    match matches.subcommand_name() {
+        Some("still") => run_still(&matches.subcommand_matches("still").unwrap()),
+        Some("gif") => run_gif(&matches.subcommand_matches("gif").unwrap()),
+        Some("term") => terminal::gen_term_loop(),
+        None => println!("None"),
+        _ => println!("Not recognised"),
+    }
 }
 
-// Should be a nicer way of doing this
-// First attempt at a clean up
-macro_rules! parse_setting {
-	($setting:ident, $setting_type:ident, $position:expr, $settings:ident) => (
-		let $setting: $setting_type = match $settings[$position].parse() {
-			Ok(value) => value,
-			Err(_) => return Err(SettingsError::from_position($position)),
-		}
-	);
+fn run_still(matches: &clap::ArgMatches) {
+   frame_setup(matches).run()
 }
 
-fn parse_settings(settings: &Vec<String>, col : bool, filename : Option<String>) -> Result<graphic::Config, SettingsError> {
-	parse_setting!(size, Float, 0, settings);
-	parse_setting!(step, Float, 1, settings);
-	parse_setting!(iters, Int, 2, settings);
-	parse_setting!(radius, Float, 3, settings);
+fn frame_setup(matches: &clap::ArgMatches) -> graphic::Config {
+    let size = value_t!(matches, "size", f32).unwrap_or_else(|e| e.exit());
+    let step = value_t!(matches, "step", f32).unwrap_or_else(|e| e.exit());
+    let iter = value_t!(matches, "iterations", i32).unwrap_or_else(|e| e.exit());
+    let radius = value_t!(matches, "radius", f32).unwrap_or_else(|e| e.exit());
 
-	Ok(graphic::Config::default()
-		.size(size)
-		.step(step)
-		.max_iters(iters)
-		.escape_radius(radius)
-		.with_color(col)
-		.filename(filename)
-		)
- }
+    let mut generator = graphic::Config::new(size, step, iter, radius);
 
+    if matches.is_present("greyscale") {
+        generator = generator.greyscale();
+    }
 
-fn parse_gif_settings(settings: &Vec<String>, con : graphic::Config) -> Result<graphic::GifConfig, SettingsError> {
-	parse_setting!(zoom, Float, 4, settings);
-	parse_setting!(z_step, Float, 5, settings);
-	parse_setting!(z_x, Float, 6, settings);
-	parse_setting!(z_y, Float, 7, settings);
+    if matches.is_present("output") {
+        generator = generator.filename(matches.value_of("output").unwrap().to_string());
+    } 
 
-	Ok(graphic::GifConfig::default()
-		.init_frame(con)
-		.zoom(zoom)
-		.z_step(z_step)
-		.z_centre_x((-1.0)*z_x)
-		.z_centre_y(z_y))
+    generator
 }
 
-enum SettingsError {
-	Size,
-	Step,
-	Iters,
-	Radius,
-	Unknown,
-}
+fn run_gif(matches: &clap::ArgMatches) {
+    let zoom = value_t!(matches, "zoom", f32).unwrap_or_else(|e| e.exit());
+    let zstep = value_t!(matches, "zstep", f32).unwrap_or_else(|e| e.exit());
+    let x = value_t!(matches, "x", f32).unwrap_or_else(|e| e.exit());
+    let y = value_t!(matches, "y", f32).unwrap_or_else(|e| e.exit());
+ 
+    let frame_generator = frame_setup(matches);
 
-impl SettingsError {
-	fn from_position(position: usize) -> Self {
-		match position {
-			0 => SettingsError::Size,
-			1 => SettingsError::Step,
-			2 => SettingsError::Iters,
-			3 => SettingsError::Radius,
-			_ => SettingsError::Unknown,
-		} 
-	}
-}
-
-fn print_usage(program: &str, opts: getopts::Options) {
-	let brief = format!("Usage: {} SIZE STEP MAX_ITERATIONS ESCAPE_RADIUS [options]", program);
-	print!("{}", opts.usage(&brief));
+    graphic::GifConfig::new(frame_generator, zoom, zstep, x, y).run();
 }
 
