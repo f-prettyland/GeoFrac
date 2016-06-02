@@ -166,6 +166,7 @@ pub struct GifConfig {
 	z_step: Float,
 	z_centre_x: Float,
 	z_centre_y: Float,
+	scale_factor: Float,
 }
 
 impl GifConfig {
@@ -176,6 +177,7 @@ impl GifConfig {
 			z_step: z_step,
 			z_centre_x: x,
 			z_centre_y: y,
+			scale_factor: 0.8,
 		}
 	}
 	
@@ -222,6 +224,8 @@ impl GifConfig {
 
 		self.init_frame.size = (1.0/curr_z)*self.init_frame.size;
 		self.init_frame.step = (1.0/curr_z)*self.init_frame.step;
+		self.init_frame.max_iters = (((curr_z*self.scale_factor)*(self.init_frame.max_iters as Float)) as Int);
+
 
 		// TODO if |zcentre| > size/2 then check these, else ignore
 		let maxx = if self.z_centre_x+(self.init_frame.size) > orig_size {orig_size} else {self.z_centre_x+(self.init_frame.size)};
@@ -230,6 +234,7 @@ impl GifConfig {
 		let maxy = if self.z_centre_y+(self.init_frame.size) > orig_size {orig_size} else {self.z_centre_y+(self.init_frame.size)};
 		let miny = if self.z_centre_y-(self.init_frame.size) < (-1.0*orig_size) {-1.0*orig_size} else {self.z_centre_y-(self.init_frame.size)};
 
+		println!("Iteration {}", count);
 		let mut beg_x = minx;
 		if maxx == orig_size {
 			beg_x = orig_size-(2.0*self.init_frame.size);
@@ -240,6 +245,8 @@ impl GifConfig {
 			beg_y = (-1.0*orig_size)+(2.0*self.init_frame.size);
 		}
 
+		self.init_frame.begin_x = beg_x;
+		self.init_frame.begin_y = beg_y;
 	}
 
 	}
