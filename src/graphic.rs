@@ -166,7 +166,6 @@ pub struct GifConfig {
 	z_step: Float,
 	z_centre_x: Float,
 	z_centre_y: Float,
-	scale_factor: Float,
 }
 
 impl GifConfig {
