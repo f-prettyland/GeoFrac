@@ -177,7 +177,6 @@ impl GifConfig {
 			z_step: z_step,
 			z_centre_x: x,
 			z_centre_y: y,
-			scale_factor: 0.8,
 		}
 	}
 	
@@ -224,7 +223,7 @@ impl GifConfig {
 
 		self.init_frame.size = (1.0/curr_z)*self.init_frame.size;
 		self.init_frame.step = (1.0/curr_z)*self.init_frame.step;
-		self.init_frame.max_iters = (((curr_z*self.scale_factor)*(self.init_frame.max_iters as Float)) as Int);
+		self.init_frame.max_iters = (((curr_z)*(self.init_frame.max_iters as Float)) as Int);
 
 
 		// TODO if |zcentre| > size/2 then check these, else ignore

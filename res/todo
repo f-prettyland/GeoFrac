@@ -1,8 +1,6 @@
 Todo:
-	Soon
-		xSize
-		ySize
-
+	PREDICITVE:
+		If pooint lies within bounds of max iterations of previous one, probably will be max again.
 
 
 	Parallelism
