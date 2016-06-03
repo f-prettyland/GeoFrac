@@ -17,5 +17,11 @@ This gives an output like:
 ![](/res/COLFractal.png)
 
 ##Animated Output `gif`
-Currently in production is an animated gif output, currently only outputs a collection of stills that can be conjoined. Sample output of `geofrac gif 2 0.01 20 2 3 0.1 0.275 0`
+Currently in production is an animated gif output, currently only outputs a collection of stills that can be conjoined. 
+
+Sample output of `geofrac gif 2 0.01 20 2 3 0.1 0.275 0`
+![](/res/anim1.gif)
+
+Sample output of `geofrac gif 2 0.01 20 2 3 0.01 0.3750001200618655 0.2166393884377127`
 ![](/res/anim.gif)
+
