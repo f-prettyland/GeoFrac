@@ -26,19 +26,19 @@ Sample output of `geofrac gif 4 0.01 20 2 3 0.01 0.3750001200618655 0.2166393884
 ![](/res/anim1.gif)
 
 
-##Todo
+## Todo
 ### Quick
 - `Escape_radius` to be optional
 - Allow user to input center and size for still generation
 - Find out why cannot generate above iteration 54 in `geofrac gif 4 0.01 20 2 3 0.01 0.3750001200618655 0.2166393884377127`
 
-### PREDICITVE:
+### Predicitve
 If pooint lies within bounds of max iterations of previous one, probably will be max again. I.E.
 
 ### Parallelism
 - crossbeam/Metal IO
 
-#### BEHAVIOURIAL ALLOCATION
+#### Behaviourial Allocation
 - Check threads using 
  + https://doc.rust-lang.org/book/benchmark-tests.html
  + https://llogiq.github.io/2015/06/16/bench.html
