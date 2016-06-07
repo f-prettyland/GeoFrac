@@ -100,6 +100,10 @@ fn frame_setup(matches: &clap::ArgMatches) -> graphic::Config {
 	generator = generator.filename(matches.value_of("output").unwrap().to_string());
     } 
 
+    if matches.is_present("radius") {
+        generator = generator.escape_radius(matches.value_of("radius").unwrap().parse().expect("Could not parse escape radius value"))
+    }
+
     generator
 }
 
