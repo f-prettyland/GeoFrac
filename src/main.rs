@@ -49,20 +49,21 @@ fn main() {
 		.args(&[
 		    Arg::with_name("zoom")
 			.help("TODO: zoom help")
-			.index(5)
+			.index(4)
 			.required(true),
 		    Arg::with_name("zstep")
 			.help("TODO: zstep help")
-			.index(6)
+			.index(5)
 			.required(true),
 		    Arg::with_name("x")
 			.help("TODO: x help")
-			.index(7)
+			.index(6)
 			.required(true),
 		    Arg::with_name("y")
 			.help("TODO: y help")
-			.index(8)
+			.index(7)
 			.required(true),
+                    
 		]),
 	    SubCommand::with_name("term")
 		.about("Outputs to terminal")
