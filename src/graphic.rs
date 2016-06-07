@@ -11,50 +11,50 @@ use types::*;
 
 #[derive(Clone)]
 pub struct Config {
-	size: Float,
-	step: Float,
-	max_iters: Int,
-	escape_radius: Float,
-	with_color: bool,
-	filename: String,
-	begin_x: Float,
-	begin_y: Float,
+    size: Float,
+    step: Float,
+    max_iters: Int,
+    escape_radius: Float,
+    with_color: bool,
+    filename: String,
+    begin_x: Float,
+    begin_y: Float,
 }
 
 impl Config {
-	pub fn new(size: Float, step: Float, iters: Int) -> Self {
-		Config {
-			size: size,
-			step: step,
-			max_iters: iters,
-			escape_radius: 2.0,
+    pub fn new(size: Float, step: Float, iters: Int) -> Self {
+            Config {
+                    size: size,
+                    step: step,
+                    max_iters: iters,
+                    escape_radius: 2.0,
 
-			// TODO: Make modifiable
-			with_color: true,
-			filename: "".to_string(),
-			begin_x: -1.0 * size,
-			begin_y: size,
-		} 
-	}
-	
-	pub fn size(mut self, size: Float) -> Self {
-	self.size = size;
-	self
-	}
+                    // TODO: Make modifiable
+                    with_color: true,
+                    filename: String::new(),
+                    begin_x: -1.0 * size,
+                    begin_y: size,
+            } 
+    }
 
-	pub fn step(mut self, step: Float) -> Self {
-	self.step = step;
-	self
-	}
+    pub fn size(mut self, size: Float) -> Self {
+    self.size = size;
+    self
+    }
 
-	pub fn max_iters(mut self, iters: Int) -> Self {
-	self.max_iters = iters;
-	self
-	}
+    pub fn step(mut self, step: Float) -> Self {
+    self.step = step;
+    self
+    }
 
-	pub fn escape_radius(mut self, radius: Float) -> Self {
-	self.escape_radius = radius;
-	self
+    pub fn max_iters(mut self, iters: Int) -> Self {
+    self.max_iters = iters;
+    self
+    }
+
+    pub fn escape_radius(mut self, radius: Float) -> Self {
+    self.escape_radius = radius;
+    self
 	}
 
 	pub fn greyscale(mut self) -> Self {
