@@ -22,12 +22,12 @@ pub struct Config {
 }
 
 impl Config {
-	pub fn new(size: Float, step: Float, iters: Int, radius: Float) -> Self {
+	pub fn new(size: Float, step: Float, iters: Int) -> Self {
 		Config {
 			size: size,
 			step: step,
 			max_iters: iters,
-			escape_radius: radius,
+			escape_radius: 2.0,
 
 			// TODO: Make modifiable
 			with_color: true,
