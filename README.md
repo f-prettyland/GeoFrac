@@ -49,6 +49,6 @@ If pooint lies within bounds of max iterations of previous one, probably will be
 ### Generics
 - Fractal finder with custom fnc input 
 	
-### Experiments:
+### Experiments
 #### "Bad version"
 Rounding to figures found before to save time
