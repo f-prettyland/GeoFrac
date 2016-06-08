@@ -38,7 +38,7 @@ fn main() {
 	    .long("output")
     ];
 
-    let matches = App::new("GeoFrac")
+    let app = App::new("GeoFrac")
 	.subcommands(vec![
 	    SubCommand::with_name("still")
 		.about("Generates a still image")
@@ -68,16 +68,19 @@ fn main() {
 	    SubCommand::with_name("term")
 		.about("Outputs to terminal")
 		.help("TODO: terminal help")
-	]).get_matches();
+	]);
 
 
-
+    // TODO: Attempt to remove cloning
+    
+    let clone = app.clone();
+    let matches = app.get_matches();
+    
     match matches.subcommand_name() {
 	Some("still") => run_still(&matches.subcommand_matches("still").unwrap()),
 	Some("gif") => run_gif(&matches.subcommand_matches("gif").unwrap()),
 	Some("term") => terminal::gen_term_loop(),
-	None => println!("None"),
-	_ => println!("Not recognised"),
+	_ =>  clone.print_help().unwrap(),
     }
 }
 
