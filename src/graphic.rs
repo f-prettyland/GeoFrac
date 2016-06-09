@@ -1,4 +1,5 @@
 extern crate image;
+extern crate threadpool;
 
 use std::fs::File;
 use std::path::Path;
@@ -9,6 +10,8 @@ use std::f32;
 use fracmaths;
 use types::*;
 use config;
+
+pub const WRKRS: usize = 100;
 
 impl config::Config {
 	pub fn run(&self) {
@@ -26,7 +29,8 @@ impl config::Config {
 	//Values for threads to reduce copying
 	let mx = self.max_iters;
 	let er = self.escape_radius;
-	
+	let pool = threadpool::ThreadPool::new(WRKRS);
+
 	//Y pixel count
 	for y_cnt in 0..(img_dim-1) {
 		//x coordinate
@@ -39,13 +43,13 @@ impl config::Config {
 		//If not coloured
 		if !self.with_color {
 			//Creates greyscale thread
-			thread::spawn(move || {
+			pool.execute(move || {
 			let xy_steps : Int = fracmaths::get_passes_mandelbrot((x, y), mx, er);
 			//Calculate colour value for
 			tx.send((x_cnt,y_cnt,((scl*(xy_steps as Float)) as u8),None,None)).unwrap();
 			});
 		} else {
-			thread::spawn(move || {
+			pool.execute(move || {
 			let xy_steps : Int = fracmaths::get_passes_mandelbrot((x, y), mx, er);
 			let mut rgb = (0,0,0);
 			if xy_steps != mx {
@@ -125,8 +129,9 @@ impl config::GifConfig {
 				.filename(format!("./{}/{}.png", self.output_dir, count))
 				.begin_x(begin_x)
 				.begin_y(begin_y);
-
+			if count > 54 {
 			frame.run();
+			}
 		}
 	}
 }

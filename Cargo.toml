@@ -8,3 +8,4 @@ authors = ["F"]
 colored = "1.2"
 image = "*"
 clap = "2.5.1"
+threadpool = "1.0"
