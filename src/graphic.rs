@@ -141,7 +141,7 @@ impl Config {
 	let grey_flag = match self.with_color{
 		true => "",
 		false=> "-bw",
-	}
+	};
 
 	let mut filename = &format!("./res/fractal-St{}-Mx{}{}.png", self.step, self.max_iters,grey_flag);
 	if self.filename != "" {

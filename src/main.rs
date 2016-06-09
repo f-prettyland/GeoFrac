@@ -15,139 +15,130 @@ const GIF_OUT_DIR: &'static str = "out";
 
 fn main() {
 
-    let options = [
+	let options = [
 	Arg::with_name("size")
-	    .help("TODO: size help")
-	    .index(1)
-	    .required(true),
+		.help("TODO: size help")
+		.index(1)
+		.required(true),
 	Arg::with_name("step")
-	    .help("TODO: step help")
-	    .index(2)
-	    .required(true),
+		.help("TODO: step help")
+		.index(2)
+		.required(true),
 	Arg::with_name("iterations")
-	    .help("TODO: iterations help")
-	    .index(3)
-	    .required(true),
+		.help("TODO: iterations help")
+		.index(3)
+		.required(true),
 	Arg::with_name("radius")
-	    .help("TODO: radius help")
-            .takes_value(true)
-	    .short("r")
-            .long("radius"),
+		.help("TODO: radius help")
+			.takes_value(true)
+		.short("r")
+			.long("radius"),
 	Arg::with_name("greyscale")
-	    .help("TODO: greyscale help")
-	    .short("g")
-	    .long("grey"),
+		.help("TODO: greyscale help")
+		.short("g")
+		.long("grey"),
 	Arg::with_name("output")
-	    .help("TODO: output help")
-	    .takes_value(true)
-	    .short("o")
-	    .long("output"),
-        Arg::with_name("old")
-            .takes_value(false)
-            .short("x")
-            .long("old")
-    ];
+		.help("TODO: output help")
+		.takes_value(true)
+		.short("o")
+		.long("output")
+	];
 
-    let app = App::new("GeoFrac")
+	let app = App::new("GeoFrac")
 	.subcommands(vec![
-	    SubCommand::with_name("still")
+		SubCommand::with_name("still")
 		.about("Generates a still image")
 		.args(&options),
-	    SubCommand::with_name("gif")
+		SubCommand::with_name("gif")
 		.about("Generates an animated gif")
 		.args(&options)
 		.args(&[
-		    Arg::with_name("zoom")
+			Arg::with_name("zoom")
 			.help("TODO: zoom help")
 			.index(4)
 			.required(true),
-		    Arg::with_name("zstep")
+			Arg::with_name("zstep")
 			.help("TODO: zstep help")
 			.index(5)
 			.required(true),
-		    Arg::with_name("x")
+			Arg::with_name("x")
 			.help("TODO: x help")
 			.index(6)
 			.required(true),
-		    Arg::with_name("y")
+			Arg::with_name("y")
 			.help("TODO: y help")
 			.index(7)
 			.required(true),
-                    
+					
 		]),
-	    SubCommand::with_name("term")
+		SubCommand::with_name("term")
 		.about("Outputs to terminal")
 		.help("TODO: terminal help")
 	]);
 
 
-    // TODO: Attempt to remove cloning
-    
-    let clone = app.clone();
-    let matches = app.get_matches();
-    
-    match matches.subcommand_name() {
-        Some("term") => { terminal::gen_term_loop() },
-        Some("still") => {
-            let options = &matches.subcommand_matches("still").unwrap();
-            run_still(options);
-        },
-        Some("gif") => {
-            let options = &matches.subcommand_matches("gif").unwrap();
-            if let Err(_) = run_gif(options) {
-                println!("Could not create output directory: \"/gif\"");
-            };
-        },
-        _ => { clone.print_help().unwrap(); }
-    }
+	// TODO: Attempt to remove cloning
+	
+	let clone = app.clone();
+	let matches = app.get_matches();
+	
+	match matches.subcommand_name() {
+		Some("term") => { terminal::gen_term_loop() },
+		Some("still") => {
+			let options = &matches.subcommand_matches("still").unwrap();
+			run_still(options);
+		},
+		Some("gif") => {
+			let options = &matches.subcommand_matches("gif").unwrap();
+			if let Err(_) = run_gif(options) {
+				println!("Could not create output directory: \"/gif\"");
+			};
+		},
+		_ => { clone.print_help().unwrap(); }
+	}
 }
 
 
 
 fn run_still(matches: &clap::ArgMatches) {
-    frame_setup(matches).run()
+	frame_setup(matches).run()
 }
 
 fn run_gif(matches: &clap::ArgMatches) -> io::Result<()> {
-    let zoom = value_t!(matches, "zoom", f32).unwrap_or_else(|e| e.exit());
-    let zstep = value_t!(matches, "zstep", f32).unwrap_or_else(|e| e.exit());
-    let x = value_t!(matches, "x", f32).unwrap_or_else(|e| e.exit());
-    let y = value_t!(matches, "y", f32).unwrap_or_else(|e| e.exit());
-    
-    let init_frame = frame_setup(matches);
+	let zoom = value_t!(matches, "zoom", f32).unwrap_or_else(|e| e.exit());
+	let zstep = value_t!(matches, "zstep", f32).unwrap_or_else(|e| e.exit());
+	let x = value_t!(matches, "x", f32).unwrap_or_else(|e| e.exit());
+	let y = value_t!(matches, "y", f32).unwrap_or_else(|e| e.exit());
+	
+	let init_frame = frame_setup(matches);
 
-    try!(fs::create_dir_all(GIF_OUT_DIR));
+	try!(fs::create_dir_all(GIF_OUT_DIR));     
+	graphic::GifConfig::new(init_frame, zoom, zstep, x, y, GIF_OUT_DIR).run();
 
-    if matches.is_present("old") {
-        graphic::GifConfig::new(init_frame, zoom, zstep, x, y, GIF_OUT_DIR).run_old();
-    } else {                    
-        graphic::GifConfig::new(init_frame, zoom, zstep, x, y, GIF_OUT_DIR).run();
-    };
-
-    Ok(())
+	Ok(())
 }
 
 
 
 fn frame_setup(matches: &clap::ArgMatches) -> graphic::Config {
-    let size = value_t!(matches, "size", f32).unwrap_or_else(|e| e.exit());
-    let step = value_t!(matches, "step", f32).unwrap_or_else(|e| e.exit());
-    let iter = value_t!(matches, "iterations", i32).unwrap_or_else(|e| e.exit());
-    //    let radius = value_t!(matches, "radius", f32).unwrap_or_else(|e| e.exit());
+	let size = value_t!(matches, "size", f32).unwrap_or_else(|e| e.exit());
+	let step = value_t!(matches, "step", f32).unwrap_or_else(|e| e.exit());
+	let iter = value_t!(matches, "iterations", i32).unwrap_or_else(|e| e.exit());
+	//    let radius = value_t!(matches, "radius", f32).unwrap_or_else(|e| e.exit());
 
-    let mut generator = graphic::Config::new(size, step, iter);
+	let mut generator = graphic::Config::new(size, step, iter);
 
-    if matches.is_present("greyscale") {
+	if matches.is_present("greyscale") {
 	generator = generator.greyscale();
-    }
+	}
 
-    if matches.is_present("output") {
+	if matches.is_present("output") {
 	generator = generator.filename(matches.value_of("output").unwrap().to_string());
-    } 
+	} 
 
-    if matches.is_present("radius") {
-        generator = generator.escape_radius(matches.value_of("radius").unwrap().parse().expect("Could not parse escape radius value"))
-    }
+	if matches.is_present("radius") {
+		generator = generator.escape_radius(matches.value_of("radius").unwrap().parse().expect("Could not parse escape radius value"))
+	}
 
-    generator
+	generator
 }
