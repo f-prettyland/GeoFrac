@@ -8,75 +8,9 @@ use std::f32;
 
 use fracmaths;
 use types::*;
+use config;
 
-#[derive(Debug, Clone)]
-pub struct Config {
-	size: Float,
-	step: Float,
-	max_iters: Int,
-	escape_radius: Float,
-	with_color: bool,
-	filename: String,
-	begin_x: Float,
-	begin_y: Float,
-}
-
-impl Config {
-	pub fn new(size: Float, step: Float, iters: Int) -> Self {
-		Config {
-			size: 0.5 * size,
-			step: step,
-			max_iters: iters,
-			escape_radius: 2.0,
-
-			// TODO: Make modifiable
-			with_color: true,
-			filename: String::new(),
-			begin_x: -0.5 * size,
-			begin_y: 0.5 * size,
-		} 
-	}
-
-	pub fn size(mut self, size: Float) -> Self {
-		self.size = size;
-		self
-	}
-
-	pub fn step(mut self, step: Float) -> Self {
-		self.step = step;
-		self
-	}
-
-	pub fn max_iters(mut self, iters: Int) -> Self {
-		self.max_iters = iters;
-		self
-	}
-
-	pub fn escape_radius(mut self, radius: Float) -> Self {
-		self.escape_radius = radius;
-		self
-	}
-
-	pub fn greyscale(mut self) -> Self {
-	self.with_color = false;
-	self
-	}
-
-	pub fn filename(mut self, filename : String) -> Self {
-	self.filename = filename;
-	self
-	}
-
-	pub fn begin_x(mut self, x : Float) -> Self {
-	self.begin_x = x;
-	self
-	}
-
-	pub fn begin_y(mut self, y : Float) -> Self {
-	self.begin_y = y;
-	self
-	}
-
+impl config::Config {
 	pub fn run(&self) {
 	let img_dim : Img = (self.size*2.0 / self.step) as Img;
 	let mut buffer = image::ImageBuffer::new(img_dim, img_dim);
@@ -138,49 +72,21 @@ impl Config {
 		}
 	}
 
-	let grey_flag = match self.with_color{
-		true => "",
-		false=> "-bw",
-	};
-
-	let mut filename = &format!("./res/fractal-St{}-Mx{}{}.png", self.step, self.max_iters,grey_flag);
-	if self.filename != "" {
-		filename = &self.filename;
-	}
-	
-	let file = &mut File::create(&Path::new(filename)).unwrap();
+	let file = &mut File::create(&Path::new(&self.filename)).unwrap();
 	let _ = image::ImageRgb8(buffer).save(file, image::PNG);
 	}
 
 
 }
+
 fn rgb_val(steps : Int, scl : Int) -> u8 {
 	((-255.0*
 	  ((steps as Float)*(20.0*(scl as Float)/(f32::consts::PI))).cos()) as Float
 	 +255.0) as u8
 }
 
-#[derive(Debug)]
-pub struct GifConfig {
-	init_frame: Config,
-	zoom: Float,
-	z_step: Float,
-	z_centre_x: Float,
-	z_centre_y: Float,
-	output_dir: String,
-}
 
-impl GifConfig {
-	pub fn new(generator: Config, zoom: Float, z_step: Float, x: Float, y: Float, dir: &str) -> Self {
-		GifConfig {
-			init_frame: generator,
-			zoom: zoom,
-			z_step: z_step,
-			z_centre_x: x,
-			z_centre_y: y,
-				output_dir: dir.to_string(),
-		}
-	}
+impl config::GifConfig {
 
 	pub fn run(&self) {
 		println!("generating...");

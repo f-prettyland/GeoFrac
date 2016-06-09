@@ -5,43 +5,46 @@ mod terminal;
 mod types;
 mod fracmaths;
 mod graphic;
+mod config;
 
 use clap::{App, Arg, SubCommand};
 
 use std::io;
 use std::fs;
-
-const GIF_OUT_DIR: &'static str = "out";
+use config::FromMatches;
 
 fn main() {
 
 	let options = [
-	Arg::with_name("size")
-		.help("TODO: size help")
-		.index(1)
-		.required(true),
-	Arg::with_name("step")
-		.help("TODO: step help")
-		.index(2)
-		.required(true),
-	Arg::with_name("iterations")
-		.help("TODO: iterations help")
-		.index(3)
-		.required(true),
-	Arg::with_name("radius")
-		.help("TODO: radius help")
+		Arg::with_name("x")
+			.help("TODO: x help")
+			.required(true),
+		Arg::with_name("y")
+			.help("TODO: y help")
+			.required(true),
+		Arg::with_name("size")
+			.help("TODO: size help")
+			.required(true),
+		Arg::with_name("step")
+			.help("TODO: step help")
+			.required(true),
+		Arg::with_name("iterations")
+			.help("TODO: iterations help")
+			.required(true),
+		Arg::with_name("radius")
+			.help("TODO: radius help")
+				.takes_value(true)
+			.short("r")
+				.long("radius"),
+		Arg::with_name("greyscale")
+			.help("TODO: greyscale help")
+			.short("g")
+			.long("grey"),
+		Arg::with_name("output")
+			.help("TODO: output help")
 			.takes_value(true)
-		.short("r")
-			.long("radius"),
-	Arg::with_name("greyscale")
-		.help("TODO: greyscale help")
-		.short("g")
-		.long("grey"),
-	Arg::with_name("output")
-		.help("TODO: output help")
-		.takes_value(true)
-		.short("o")
-		.long("output")
+			.short("o")
+			.long("output")
 	];
 
 	let app = App::new("GeoFrac")
@@ -54,22 +57,11 @@ fn main() {
 		.args(&options)
 		.args(&[
 			Arg::with_name("zoom")
-			.help("TODO: zoom help")
-			.index(4)
-			.required(true),
+				.help("TODO: zoom help")
+				.required(true),
 			Arg::with_name("zstep")
-			.help("TODO: zstep help")
-			.index(5)
-			.required(true),
-			Arg::with_name("x")
-			.help("TODO: x help")
-			.index(6)
-			.required(true),
-			Arg::with_name("y")
-			.help("TODO: y help")
-			.index(7)
-			.required(true),
-					
+				.help("TODO: zstep help")
+				.required(true)	
 		]),
 		SubCommand::with_name("term")
 		.about("Outputs to terminal")
@@ -98,47 +90,12 @@ fn main() {
 	}
 }
 
-
-
 fn run_still(matches: &clap::ArgMatches) {
-	frame_setup(matches).run()
+	config::Config::from_matches(matches).run()
 }
 
 fn run_gif(matches: &clap::ArgMatches) -> io::Result<()> {
-	let zoom = value_t!(matches, "zoom", f32).unwrap_or_else(|e| e.exit());
-	let zstep = value_t!(matches, "zstep", f32).unwrap_or_else(|e| e.exit());
-	let x = value_t!(matches, "x", f32).unwrap_or_else(|e| e.exit());
-	let y = value_t!(matches, "y", f32).unwrap_or_else(|e| e.exit());
-	
-	let init_frame = frame_setup(matches);
-
-	try!(fs::create_dir_all(GIF_OUT_DIR));     
-	graphic::GifConfig::new(init_frame, zoom, zstep, x, y, GIF_OUT_DIR).run();
-
+	try!(fs::create_dir_all(config::GIF_OUT_DIR));
+	config::GifConfig::from_matches(matches).run();
 	Ok(())
-}
-
-
-
-fn frame_setup(matches: &clap::ArgMatches) -> graphic::Config {
-	let size = value_t!(matches, "size", f32).unwrap_or_else(|e| e.exit());
-	let step = value_t!(matches, "step", f32).unwrap_or_else(|e| e.exit());
-	let iter = value_t!(matches, "iterations", i32).unwrap_or_else(|e| e.exit());
-	//    let radius = value_t!(matches, "radius", f32).unwrap_or_else(|e| e.exit());
-
-	let mut generator = graphic::Config::new(size, step, iter);
-
-	if matches.is_present("greyscale") {
-	generator = generator.greyscale();
-	}
-
-	if matches.is_present("output") {
-	generator = generator.filename(matches.value_of("output").unwrap().to_string());
-	} 
-
-	if matches.is_present("radius") {
-		generator = generator.escape_radius(matches.value_of("radius").unwrap().parse().expect("Could not parse escape radius value"))
-	}
-
-	generator
 }
