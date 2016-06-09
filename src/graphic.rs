@@ -78,7 +78,7 @@ impl Config {
     }
 
     pub fn run(&self) {
-	let img_dim : Img = (self.size / self.step) as Img;
+	let img_dim : Img = (self.size*2.0 / self.step) as Img;
 	let mut buffer = image::ImageBuffer::new(img_dim, img_dim);
 
 	//Coordinate variable initialisation
