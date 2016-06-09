@@ -35,7 +35,11 @@ fn main() {
 	    .help("TODO: output help")
 	    .takes_value(true)
 	    .short("o")
-	    .long("output")
+	    .long("output"),
+        Arg::with_name("old")
+            .takes_value(false)
+            .short("x")
+            .long("old")
     ];
 
     let app = App::new("GeoFrac")
@@ -92,7 +96,7 @@ fn frame_setup(matches: &clap::ArgMatches) -> graphic::Config {
     let size = value_t!(matches, "size", f32).unwrap_or_else(|e| e.exit());
     let step = value_t!(matches, "step", f32).unwrap_or_else(|e| e.exit());
     let iter = value_t!(matches, "iterations", i32).unwrap_or_else(|e| e.exit());
-//    let radius = value_t!(matches, "radius", f32).unwrap_or_else(|e| e.exit());
+    //    let radius = value_t!(matches, "radius", f32).unwrap_or_else(|e| e.exit());
 
     let mut generator = graphic::Config::new(size, step, iter);
 
@@ -119,6 +123,10 @@ fn run_gif(matches: &clap::ArgMatches) {
     
     let frame_generator = frame_setup(matches);
 
-    graphic::GifConfig::new(frame_generator, zoom, zstep, x, y).run();
+    if matches.is_present("old") {
+        graphic::GifConfig::new(frame_generator, zoom, zstep, x, y).run_old();
+    } else {
+        graphic::GifConfig::new(frame_generator, zoom, zstep, x, y).run();
+    }
 }
 
