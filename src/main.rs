@@ -11,7 +11,7 @@ use clap::{App, Arg, SubCommand};
 use std::io;
 use std::fs;
 
-const GIF_OUT_DIR: &'static str = "gif";
+const GIF_OUT_DIR: &'static str = "out";
 
 fn main() {
 

@@ -303,7 +303,7 @@ impl GifConfig {
                 .size((1.0 / curr_z) * frame.size)
                 .step((1.0 / curr_z) * frame.step)
                 .max_iters((curr_z * frame.max_iters as Float) as Int)
-                .filename(format!("./gif/{}.png", count))
+                .filename(format!("./{}/{}.png", self.output_dir, count))
                 .begin_x(begin_x)
                 .begin_y(begin_y);
 
