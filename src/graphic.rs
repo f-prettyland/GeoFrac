@@ -24,7 +24,7 @@ pub struct Config {
 impl Config {
 	pub fn new(size: Float, step: Float, iters: Int) -> Self {
 		Config {
-			size: size/2.0,
+			size: 0.5 * size,
 			step: step,
 			max_iters: iters,
 			escape_radius: 2.0,
