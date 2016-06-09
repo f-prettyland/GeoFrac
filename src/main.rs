@@ -8,7 +8,13 @@ mod graphic;
 
 use clap::{App, Arg, SubCommand};
 
+use std::io;
+use std::fs;
+
+const GIF_OUT_DIR: &'static str = "gif";
+
 fn main() {
+
     let options = [
 	Arg::with_name("size")
 	    .help("TODO: size help")
@@ -81,16 +87,47 @@ fn main() {
     let matches = app.get_matches();
     
     match matches.subcommand_name() {
-	Some("still") => run_still(&matches.subcommand_matches("still").unwrap()),
-	Some("gif") => run_gif(&matches.subcommand_matches("gif").unwrap()),
-	Some("term") => terminal::gen_term_loop(),
-	_ =>  clone.print_help().unwrap(),
+        Some("term") => { terminal::gen_term_loop() },
+        Some("still") => {
+            let options = &matches.subcommand_matches("still").unwrap();
+            run_still(options);
+        },
+        Some("gif") => {
+            let options = &matches.subcommand_matches("gif").unwrap();
+            if let Err(_) = run_gif(options) {
+                println!("Could not create output directory: \"/gif\"");
+            };
+        },
+        _ => { clone.print_help().unwrap(); }
     }
 }
+
+
 
 fn run_still(matches: &clap::ArgMatches) {
     frame_setup(matches).run()
 }
+
+fn run_gif(matches: &clap::ArgMatches) -> io::Result<()> {
+    let zoom = value_t!(matches, "zoom", f32).unwrap_or_else(|e| e.exit());
+    let zstep = value_t!(matches, "zstep", f32).unwrap_or_else(|e| e.exit());
+    let x = value_t!(matches, "x", f32).unwrap_or_else(|e| e.exit());
+    let y = value_t!(matches, "y", f32).unwrap_or_else(|e| e.exit());
+    
+    let init_frame = frame_setup(matches);
+
+    try!(fs::create_dir_all(GIF_OUT_DIR));
+
+    if matches.is_present("old") {
+        graphic::GifConfig::new(init_frame, zoom, zstep, x, y, GIF_OUT_DIR).run_old();
+    } else {                    
+        graphic::GifConfig::new(init_frame, zoom, zstep, x, y, GIF_OUT_DIR).run();
+    };
+
+    Ok(())
+}
+
+
 
 fn frame_setup(matches: &clap::ArgMatches) -> graphic::Config {
     let size = value_t!(matches, "size", f32).unwrap_or_else(|e| e.exit());
@@ -114,19 +151,3 @@ fn frame_setup(matches: &clap::ArgMatches) -> graphic::Config {
 
     generator
 }
-
-fn run_gif(matches: &clap::ArgMatches) {
-    let zoom = value_t!(matches, "zoom", f32).unwrap_or_else(|e| e.exit());
-    let zstep = value_t!(matches, "zstep", f32).unwrap_or_else(|e| e.exit());
-    let x = value_t!(matches, "x", f32).unwrap_or_else(|e| e.exit());
-    let y = value_t!(matches, "y", f32).unwrap_or_else(|e| e.exit());
-    
-    let frame_generator = frame_setup(matches);
-
-    if matches.is_present("old") {
-        graphic::GifConfig::new(frame_generator, zoom, zstep, x, y).run_old();
-    } else {
-        graphic::GifConfig::new(frame_generator, zoom, zstep, x, y).run();
-    }
-}
-

@@ -167,16 +167,18 @@ pub struct GifConfig {
     z_step: Float,
     z_centre_x: Float,
     z_centre_y: Float,
+    output_dir: String,
 }
 
 impl GifConfig {
-    pub fn new(generator: Config, zoom: Float, z_step: Float, x: Float, y: Float) -> Self {
+    pub fn new(generator: Config, zoom: Float, z_step: Float, x: Float, y: Float, dir: &str) -> Self {
 	GifConfig {
 	    init_frame: generator,
 	    zoom: zoom,
 	    z_step: z_step,
 	    z_centre_x: x,
 	    z_centre_y: y,
+            output_dir: dir.to_string(),
 	}
     }
     
