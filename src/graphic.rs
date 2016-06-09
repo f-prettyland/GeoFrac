@@ -138,12 +138,12 @@ impl Config {
 		}
 	}
 
-	let b = match self.with_color{
+	let grey_flag = match self.with_color{
 		true => "",
 		false=> "-bw",
-	};
+	}
 
-	let mut filename = &format!("./res/fractal-St{}-Mx{}{}.png", self.step, self.max_iters,b);
+	let mut filename = &format!("./res/fractal-St{}-Mx{}{}.png", self.step, self.max_iters,grey_flag);
 	if self.filename != "" {
 		filename = &self.filename;
 	}
@@ -172,102 +172,15 @@ pub struct GifConfig {
 
 impl GifConfig {
 	pub fn new(generator: Config, zoom: Float, z_step: Float, x: Float, y: Float, dir: &str) -> Self {
-	GifConfig {
-		init_frame: generator,
-		zoom: zoom,
-		z_step: z_step,
-		z_centre_x: x,
-		z_centre_y: y,
-			output_dir: dir.to_string(),
-	}
-	}
-	
-	pub fn init_frame(mut self, init: Config) -> Self {
-	self.init_frame = init;
-	self
-	}
-
-	pub fn zoom(mut self, zoom: Float) -> Self {
-	self.zoom = zoom;
-	self
-	}
-
-	pub fn z_step(mut self, step: Float) -> Self {
-	self.z_step = step;
-	self
-	}
-
-	pub fn z_centre_x(mut self, centre: Float) -> Self {
-	self.z_centre_x = centre;
-	self
-	}
-
-	pub fn z_centre_y(mut self, centre: Float) -> Self {
-	self.z_centre_y = centre;
-	self
-	}
-
-
-	pub fn run_old(&mut self){
-	println!("generating...");
-	let mut curr_z : Float = 1.0;
-	let mut count = 0;
-	let orig_size = self.init_frame.size;
-	loop{
-		count+=1;
-		self.init_frame.filename = format!("./gif/{}.png",count);
-
-		self.init_frame.run();
-		curr_z += self.z_step;
-		if curr_z > self.zoom {
-		break;
+		GifConfig {
+			init_frame: generator,
+			zoom: zoom,
+			z_step: z_step,
+			z_centre_x: x,
+			z_centre_y: y,
+				output_dir: dir.to_string(),
 		}
-
-		self.init_frame.size = (1.0/curr_z)*self.init_frame.size;
-		self.init_frame.step = (1.0/curr_z)*self.init_frame.step;
-		self.init_frame.max_iters = ((curr_z)*(self.init_frame.max_iters as Float)) as Int;
-
-
-		// TODO if |zcentre| > size/2 then check these, else ignore
-		let maxx = if self.z_centre_x+(self.init_frame.size) > orig_size {orig_size} else {self.z_centre_x+(self.init_frame.size)};
-
-		let minx = if self.z_centre_x-(self.init_frame.size) < (-1.0*orig_size) {-1.0*orig_size} else {
-					self.z_centre_x-(self.init_frame.size)
-				};
-
-		let maxy =
-				if self.z_centre_y+(self.init_frame.size) > orig_size {
-					orig_size
-				} else {
-					self.z_centre_y+(self.init_frame.size)
-				};
-			
-		let miny =
-				if self.z_centre_y-(self.init_frame.size) < (-1.0*orig_size) {
-					-1.0*orig_size
-				} else {
-					self.z_centre_y-(self.init_frame.size)
-				};
-
-		println!("Iteration {}", count);
-			println!("{:#?}", self);
-			
-		let mut beg_x = minx;
-		if maxx == orig_size {
-		beg_x = orig_size-(2.0*self.init_frame.size);
-		}
-
-		let mut beg_y = maxy;
-		if miny == (-1.0*orig_size) {
-		beg_y = (-1.0*orig_size)+(2.0*self.init_frame.size);
-		}
-
-		self.init_frame.begin_x = beg_x;
-		self.init_frame.begin_y = beg_y;
 	}
-
-	}
-
 
 	pub fn run(&self) {
 		println!("generating...");
