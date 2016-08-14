@@ -36,18 +36,18 @@ impl Config {
 	}
 
 	pub fn filename(mut self, filename : String) -> Self {
-	self.filename = filename;
-	self
+	    self.filename = filename;
+	    self
 	}
 
 	pub fn begin_x(mut self, x : Float) -> Self {
-	self.begin_x = x;
-	self
+	    self.begin_x = x;
+	    self
 	}
 
 	pub fn begin_y(mut self, y : Float) -> Self {
-	self.begin_y = y;
-	self
+	    self.begin_y = y;
+	    self
 	}
 }
 

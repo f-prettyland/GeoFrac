@@ -2,6 +2,7 @@ extern crate colored;
 use self::colored::*;
 
 use fracmaths;
+use fracmaths::FractalGenerator;
 use types::Int as Int;
 use types::Float as Float;
 
@@ -17,7 +18,7 @@ pub fn gen_term_loop(){
 		x = -1.0*size;
 		loop{
 			print!("{}", get_col_out(
-					fracmaths::get_passes_mandelbrot((x, y), mx, dr))
+					fracmaths::Mandelbrot::get_passes((x, y), mx, dr))
 					);
 			x += stp;
 			if x > size {
