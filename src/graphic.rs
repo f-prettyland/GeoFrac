@@ -7,7 +7,6 @@ use std::sync::mpsc;
 use std::f32;
 
 use fracmaths;
-use fracmaths::FractalGenerator;
 use types::*;
 use renderer;
 
@@ -44,13 +43,13 @@ impl renderer::Renderer {
 		if !self.with_color {
 			//Creates greyscale thread
 			pool.execute(move || {
-			let xy_steps : Int = fracmaths::Mandelbrot::get_passes((x, y), mx, er);
+			let xy_steps : Int = G::get_passes((x, y), mx, er);
 			//Calculate colour value for
 			tx.send((x_cnt,y_cnt,((scl*(xy_steps as Float)) as u8),None,None)).unwrap();
 			});
 		} else {
 			pool.execute(move || {
-			let xy_steps : Int = fracmaths::Mandelbrot::get_passes((x, y), mx, er);
+			let xy_steps = G::get_passes((x, y), mx, er);
 			let mut rgb = (0,0,0);
 			if xy_steps != mx {
 				rgb = (rgb_val(xy_steps, 0),rgb_val(xy_steps, 1), rgb_val(xy_steps, 2));

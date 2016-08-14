@@ -19,3 +19,4 @@ impl FractalGenerator for Mandelbrot {
 	cnt
     }
 }
+
