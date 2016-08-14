@@ -4,7 +4,7 @@ use types::*;
 pub const GIF_OUT_DIR: &'static str = "gif";
 
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct Renderer {
 	pub size: Float,
 	pub step: Float,
 	pub max_iters: Int,
@@ -19,7 +19,7 @@ pub trait FromMatches {
 	fn from_matches(matches: &clap::ArgMatches) -> Self;
 }
 
-impl Config {
+impl Renderer {
 	pub fn size(mut self, size: Float) -> Self {
 		self.size = size;
 		self
@@ -51,7 +51,7 @@ impl Config {
 	}
 }
 
-impl FromMatches for Config {
+impl FromMatches for Renderer {
 	fn from_matches(matches: &clap::ArgMatches) -> Self {
 		let x = value_t!(matches, "x", f32).unwrap();
 		let y = value_t!(matches, "y", f32).unwrap();
@@ -76,7 +76,7 @@ impl FromMatches for Config {
 			2.0
 		};
 
-		Config {
+		Renderer {
 			size: 0.5 * size,
 			step: step,
 			max_iters: iter,
@@ -90,8 +90,8 @@ impl FromMatches for Config {
 }
 
 #[derive(Debug)]
-pub struct GifConfig {
-	pub init_frame: Config,
+pub struct GifRenderer {
+	pub init_frame: Renderer,
 	pub zoom: Float,
 	pub z_step: Float,
 	pub z_centre_x: Float,
@@ -99,15 +99,15 @@ pub struct GifConfig {
 	pub output_dir: String,
 }
 
-impl FromMatches for GifConfig {
+impl FromMatches for GifRenderer {
 	fn from_matches(matches: &clap::ArgMatches) -> Self {
 		let zoom = value_t!(matches, "zoom", f32).unwrap();
 		let z_step = value_t!(matches, "zstep", f32).unwrap();
 		let x = value_t!(matches, "x", f32).unwrap();
 		let y = value_t!(matches, "y", f32).unwrap();
 
-		GifConfig {
-			init_frame: Config::from_matches(matches),
+		GifRenderer {
+			init_frame: Renderer::from_matches(matches),
 			zoom: zoom,
 			z_step: z_step,
 			z_centre_x: x,

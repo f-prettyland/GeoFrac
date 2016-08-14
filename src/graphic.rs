@@ -3,18 +3,17 @@ extern crate threadpool;
 
 use std::fs::File;
 use std::path::Path;
-use std::thread;
 use std::sync::mpsc;
 use std::f32;
 
 use fracmaths;
 use types::*;
-use config;
+use renderer;
 
 pub const WRKRS: usize = 100;
 
-impl config::Config {
-	pub fn run(&self) {
+impl renderer::Renderer {
+	pub fn render(&self) {
 	let img_dim : Img = (self.size*2.0 / self.step) as Img;
 	let mut buffer = image::ImageBuffer::new(img_dim, img_dim);
 
@@ -90,9 +89,9 @@ fn rgb_val(steps : Int, scl : Int) -> u8 {
 }
 
 
-impl config::GifConfig {
+impl renderer::GifRenderer {
 
-	pub fn run(&self) {
+	pub fn render(&self) {
 		println!("generating...");
 
 		let init_size = self.init_frame.size;
@@ -130,7 +129,7 @@ impl config::GifConfig {
 				.begin_x(begin_x)
 				.begin_y(begin_y);
 			if count > 54 {
-			frame.run();
+			frame.render();
 			}
 		}
 	}
