@@ -5,13 +5,13 @@ mod terminal;
 mod types;
 mod fracmaths;
 mod graphic;
-mod config;
+mod renderer;
 
 use clap::{App, Arg, SubCommand};
 
 use std::io;
 use std::fs;
-use config::FromMatches;
+use renderer::FromMatches;
 
 fn main() {
 
@@ -78,11 +78,11 @@ fn main() {
 	Some("term") => { terminal::gen_term_loop() },
 	Some("still") => {
 	    let options = &matches.subcommand_matches("still").unwrap();
-	    run_still(options);
+	    render_still(options);
 	},
 	Some("gif") => {
 	    let options = &matches.subcommand_matches("gif").unwrap();
-	    if let Err(_) = run_gif(options) {
+	    if let Err(_) = render_gif(options) {
 		println!("Could not create output directory: \"/gif\"");
 	    };
 	},
@@ -90,12 +90,12 @@ fn main() {
     }
 }
 
-fn run_still(matches: &clap::ArgMatches) {
-    config::Config::from_matches(matches).run()
+fn render_still(matches: &clap::ArgMatches) {
+    renderer::Renderer::from_matches(matches).render()
 }
 
-fn run_gif(matches: &clap::ArgMatches) -> io::Result<()> {
-    try!(fs::create_dir_all(config::GIF_OUT_DIR));
-    config::GifConfig::from_matches(matches).run();
+fn render_gif(matches: &clap::ArgMatches) -> io::Result<()> {
+    try!(fs::create_dir_all(renderer::GIF_OUT_DIR));
+    renderer::GifRenderer::from_matches(matches).render();
     Ok(())
 }
