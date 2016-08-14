@@ -91,11 +91,11 @@ fn main() {
 }
 
 fn render_still(matches: &clap::ArgMatches) {
-    renderer::Renderer::from_matches(matches).render()
+    renderer::Renderer::from_matches(matches).render::<fracmaths::Mandelbrot>()
 }
 
 fn render_gif(matches: &clap::ArgMatches) -> io::Result<()> {
     try!(fs::create_dir_all(renderer::GIF_OUT_DIR));
-    renderer::GifRenderer::from_matches(matches).render();
+    renderer::GifRenderer::from_matches(matches).render::<fracmaths::Mandelbrot>();
     Ok(())
 }

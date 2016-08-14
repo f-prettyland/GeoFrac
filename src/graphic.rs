@@ -14,7 +14,7 @@ use renderer;
 pub const WRKRS: usize = 100;
 
 impl renderer::Renderer {
-	pub fn render(&self) {
+	pub fn render<G: fracmaths::FractalGenerator>(&self) {
 	let img_dim : Img = (self.size*2.0 / self.step) as Img;
 	let mut buffer = image::ImageBuffer::new(img_dim, img_dim);
 
@@ -92,7 +92,7 @@ fn rgb_val(steps : Int, scl : Int) -> u8 {
 
 impl renderer::GifRenderer {
 
-	pub fn render(&self) {
+	pub fn render<G: fracmaths::FractalGenerator>(&self) {
 		println!("generating...");
 
 		let init_size = self.init_frame.size;
@@ -130,7 +130,7 @@ impl renderer::GifRenderer {
 				.begin_x(begin_x)
 				.begin_y(begin_y);
 			if count > 54 {
-			frame.render();
+			    frame.render::<fracmaths::Mandelbrot>();
 			}
 		}
 	}
